@@ -10,15 +10,51 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const { username } = request.header;
+
+  const user = users.find((user) => user.username === username);
+  if(!user) {
+    return response.status(401).json({error: 'User not found!'})
+  }
+
+  request.user = user;
+
+  return next();
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const { user } = request;
+  if(user.pro == false && user.todos.length < 10) {
+    return next();
+  }
+  else if(user.pro == true) {
+    return next();
+  }
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const { username } = request.header;
+  const { id } = request.params;
+
+  const user = users.find((user) => user.username === username);
+
+  if(!user) {
+    return response.status(401).json({error: 'User not found!'})
+  }
+
+  if(user.id !== id.uuidv4()) {
+    return response.status(401).json({error: 'Invalid Id!'})
+  }
+
+  const todo = user.find.todo((todo) => todo.id === id)
+  if(!todo) {
+    return response.status(401).json({error: 'Id not found!'})
+  }
+
+  request.todo = todo;
+  request.user = user;
+
+  next();
 }
 
 function findUserById(request, response, next) {
